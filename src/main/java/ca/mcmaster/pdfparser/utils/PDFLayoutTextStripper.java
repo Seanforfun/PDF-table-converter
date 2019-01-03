@@ -61,7 +61,7 @@ public class PDFLayoutTextStripper extends PDFTextStripper {
 
     public static final boolean DEBUG = true;
     public static final int OUTPUT_SPACE_CHARACTER_WIDTH_IN_PT = 4;
-    public static final String CELL_SPLITER = "@#@";
+    public static final String CELL_SPLITER = "";
 
     private double currentPageWidth;
     private TextPosition previousTextPosition;

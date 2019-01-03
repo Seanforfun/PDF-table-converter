@@ -105,8 +105,8 @@ public class DebugTest {
         List<Cell> cells = SpreadsheetExtractionAlgorithm.findCells(h, v);
         for(Cell cell : cells){
             if(!cell.isEmpty()){
-                System.out.println("[x: " + cell.getX() + " y: " + cell.getY() + " text: " +cell.getText() + "]");
-                System.out.println(cell.getWidth() + " " + cell.getHeight());
+                System.out.println("[width: " + cell.getWidth() + " height: " + cell.getHeight() + " text: " +cell.getText() + "]");
+//                System.out.println(cell.getWidth() + " " + cell.getHeight());
                 List<TextChunk> textElements = cell.getTextElements();
                 for(TextChunk textChunk : textElements) {
                     System.out.println("=====");
@@ -248,9 +248,9 @@ public class DebugTest {
 
         Graphics2D g = (Graphics2D) image.getGraphics();
 
-//        if (drawTextChunks) {
+        if (drawTextChunks) {
             debugTextChunks(g, page);
-//        }
+        }
         if (drawSpreadsheets) {
             debugSpreadsheets(g, page);
         }
@@ -270,9 +270,9 @@ public class DebugTest {
             g.setColor(Color.ORANGE);
             drawShape(g, area);
         }
-        if (drawCells) {
+//        if (drawCells) {
             debugCells(g, area, page);
-        }
+//        }
         if (drawUnprocessedRulings) {
             debugNonCleanRulings(g, page);
         }
@@ -346,7 +346,7 @@ public class DebugTest {
 //                throw new ParseException("Need one filename\nTry --help for help");
 //            }
 
-            File pdfFile = new File("E:\\LocalProject\\PDFParser\\src\\main\\resources\\2.pdf");
+            File pdfFile = new File("F:\\JavaEE_Project\\PDF-table-converter\\src\\main\\resources\\2.pdf");
             if (!pdfFile.exists()) {
                 throw new ParseException("File does not exist");
             }

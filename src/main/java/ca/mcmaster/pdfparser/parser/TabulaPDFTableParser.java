@@ -1,10 +1,9 @@
 package ca.mcmaster.pdfparser.parser;
 
-import ca.mcmaster.pdfparser.entity.TabulaTable;
+import ca.mcmaster.pdfparser.entity.*;
+import ca.mcmaster.pdfparser.algorithm.*;
 import ca.mcmaster.pdfparser.exceptions.ExtractException;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import technology.tabula.*;
-import technology.tabula.extractors.SpreadsheetExtractionAlgorithm;
 
 import java.io.IOException;
 import java.util.ArrayList;

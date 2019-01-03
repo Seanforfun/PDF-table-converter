@@ -1,7 +1,7 @@
 package ca.mcmaster.pdfparser.parser;
 
+import ca.mcmaster.pdfparser.entity.Table;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import technology.tabula.Table;
 
 import java.io.IOException;
 

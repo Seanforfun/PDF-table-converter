@@ -6,17 +6,16 @@ import ca.mcmaster.pdfparser.exceptions.EmptyArgumentError;
 import ca.mcmaster.pdfparser.loader.FileLoader;
 import ca.mcmaster.pdfparser.parser.PDFTableParser;
 import ca.mcmaster.pdfparser.parser.TabulaPDFTableParser;
+import ca.mcmaster.pdfparser.utils.PDFLayoutTextStripper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import technology.tabula.Cell;
-import technology.tabula.Table;
 
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
 @Slf4j
-public class PdfParser {
+public class PdfConvertor {
     public static void main(String[] args) throws IOException {
         if(args.length == 0)
             throw new EmptyArgumentError("Please provide a path (or file) for parsing");
@@ -33,11 +32,12 @@ public class PdfParser {
                 log.info("Start parsing file {}", pdfName);
                 final PDDocument pdDocument = pdf.getPdf();
                 TabulaTable table = (TabulaTable)parser.parserPDFTable(pdDocument);
-                final TabulaTable.TableIterator<String> iterator = table.getTableIterator();
-                while (iterator.hasNext()){
-                    log.info("{}", iterator.next());
-                }
-                log.info("{}", table.getContentFromTable(15, 0));
+//                final TabulaTable.TableIterator<String> iterator = table.getTableIterator();
+//                while (iterator.hasNext()){
+//                    log.info("{}", iterator.next());
+//                }
+                System.out.println(table.showTable());
+//                log.info("{}", table.getContentFromTable(6, 2));
             }finally {
                 pdf.getPdf().close();
             }
