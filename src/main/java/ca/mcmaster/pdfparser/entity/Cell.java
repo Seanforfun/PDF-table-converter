@@ -1,5 +1,8 @@
 package ca.mcmaster.pdfparser.entity;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import technology.tabula.Rectangle;
 import technology.tabula.RectangularTextContainer;
 
@@ -9,25 +12,23 @@ import java.util.Collections;
 import java.util.List;
 
 @SuppressWarnings("serial")
+@Slf4j
 public class Cell extends RectangularTextContainer<TextChunk> {
 
-	public Cell(float top, float left, float width, float height) {
-		super(top, left, width, height);
-		this.setPlaceholder(false);
-		this.setSpanning(false);
-		this.setTextElements(new ArrayList<TextChunk>());
-	}
+    private boolean placeholder = false;
+    private List<TextChunk> textElements;
+    @Getter @Setter
+	private int holdX = 1, holdY = 1;
+    @Getter @Setter
+    private int lineNum, colNum;
+    private static final String PLACEHOLDER_FORMAT = "[[PLACEHOLDER] line: %s, col: %s]";
+    private static final String CELL_FORMAT = "[[TEXT] text: %s, line: %d, col: %d]";
 
-	public Cell(Point2D topLeft, Point2D bottomRight) {
-		super((float) topLeft.getY(), (float) topLeft.getX(), (float) (bottomRight.getX() - topLeft.getX()), (float) (bottomRight.getY() - topLeft.getY()));
-		this.setPlaceholder(false);
-		this.setSpanning(false);
-		this.setTextElements(new ArrayList<TextChunk>());
-	}
-
-	private boolean spanning;
-	private boolean placeholder;
-	private List<TextChunk> textElements;
+    public Cell(Point2D topLeft, Point2D bottomRight) {
+        super((float) topLeft.getY(), (float) topLeft.getX(), (float) (bottomRight.getX() - topLeft.getX()), (float) (bottomRight.getY() - topLeft.getY()));
+        this.setPlaceholder(false);
+        this.setTextElements(new ArrayList<TextChunk>());
+    }
 
 	@Override
 	public String getText(boolean useLineReturns) {
@@ -51,14 +52,6 @@ public class Cell extends RectangularTextContainer<TextChunk> {
 		return getText(true);
 	}
 
-	public boolean isSpanning() {
-		return spanning;
-	}
-
-	public void setSpanning(boolean spanning) {
-		this.spanning = spanning;
-	}
-
 	public boolean isPlaceholder() {
 		return placeholder;
 	}
@@ -75,4 +68,13 @@ public class Cell extends RectangularTextContainer<TextChunk> {
 		this.textElements = textElements;
 	}
 
+	@Override
+	public String toString(){
+        StringBuilder sb = new StringBuilder();
+        int lineNum = getLineNum();
+        int colNum = getColNum();
+        sb.append(placeholder ? String.format(PLACEHOLDER_FORMAT, lineNum, colNum):
+                String.format(CELL_FORMAT, getText(), lineNum, colNum));
+        return sb.toString();
+    }
 }

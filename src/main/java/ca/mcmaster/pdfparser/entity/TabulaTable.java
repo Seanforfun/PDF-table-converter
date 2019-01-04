@@ -14,6 +14,7 @@ import java.util.*;
 @Slf4j
 public class TabulaTable extends Table {
     private final TreeMap<java.lang.Float, List<Cell>> table;
+    private final TreeMap<java.lang.Float, Line> lineTable;
     private final Map<Integer, java.lang.Float> keyMap;
     private final List<Cell> cellList;
 
@@ -23,18 +24,18 @@ public class TabulaTable extends Table {
     private final TableIterator<String> it;
     private final Comparator<Cell> lineComparator;
     private final Comparator<TextChunk> chunkComparator;
+    private final Comparator<java.lang.Float> treemapComparator;
 
-    private static final int FIRST_INDEX = 0;
     private static final float VALID_CELL_WIDTH_THRESHOLD = 2F;
     private static final float VALID_CELL_HEIGHT_THRESHOLD = 2F;
-    private static final String CELL_SPLITOR = " | ";
-    private static final String LINE_SPILITOR = System.getProperty("line.separator");
+    public static final String CELL_SPLITOR = " | ";
+    public static final String LINE_SPILITOR = System.getProperty("line.separator");
 
     public TabulaTable(List<Cell> cells, List<TextChunk> textChunks){
         this(new BasicExtractionAlgorithm(), cells, textChunks);
     }
 
-    public TabulaTable(ExtractionAlgorithm extractionAlgorithm, List<Cell> cells, List<TextChunk> textChunks) {
+    private TabulaTable(ExtractionAlgorithm extractionAlgorithm, List<Cell> cells, List<TextChunk> textChunks) {
         super(extractionAlgorithm);
         this.cellList = cells;
         lineComparator = (c1, c2) -> {
@@ -48,20 +49,83 @@ public class TabulaTable extends Table {
             if(x1 == x2) return 0;
             return x1 < x2 ? -1: 1;
         };
-        keyMap = new HashMap<>();
-        this.table = new TreeMap<>((f1, f2) -> {
+        treemapComparator = (f1, f2) -> {
             if(f1 < f2) return -1;
             else if(f1 > f2) return 1;
             else return 0;
-        });
+        };
+        keyMap = new HashMap<>();
+        this.table = new TreeMap<>(treemapComparator);
         colCount = new ArrayList<>();
+        it = new TableIterator<>();
+        lineTable = new TreeMap<>(treemapComparator);
+        createTreeMapTable(cells, textChunks);
+    }
 
+    private void createTreeMapTable(final List<Cell> cells,  final List<TextChunk> textChunks){
         //Step1:Add all cells and create the tree map.
         addCells(cells);
         //Step2: Add all textchunks to correct cell.
         addTextChunks(textChunks);
-        //Step3: Check all cells again and remove invalid cells.
-        it = new TableIterator<>();
+        //Step3: Create line table
+        createLineTable();
+    }
+
+    private Line getLineByY(float yStart, float yEnd){
+        List<Line> lines = new LinkedList<>(lineTable.values());
+        for(int i = 0 ; i < lines.size(); i++){
+            Line line = lines.get(i);
+            if((float)line.getY() <= yStart && (float)line.getMaxY() >= yEnd) {
+                return line;
+            }
+        }
+        Line line = new Line();
+        line.setY(yStart);
+        line.setMaxY(yEnd);
+        lineTable.put(yStart, line);
+        return line;
+    }
+
+    private Line getBelongLine(Cell cell){
+        Collection<Line> lines = lineTable.values();
+        float yStart = (float) cell.getY();
+        float yEnd = (float) cell.getMaxY();
+        for(Line line : lines){
+            float tempY = (float)line.getY();
+            float tempMaxY = (float)line.getMaxY();
+            if(within(yStart, yEnd, tempY, tempMaxY)){
+                return line;
+            }
+        }
+        return new Line();
+    }
+
+    private void createLineTable(){
+        NavigableSet<java.lang.Float> keySet = table.navigableKeySet();
+        Iterator<java.lang.Float> it = keySet.iterator();
+
+        while(it.hasNext()){
+            // Get the yStart of current line, we try to get the line object.
+            java.lang.Float key = it.next();
+            List<Cell> lineList = table.get(key);
+            float max = 0F;
+
+            // Create or get line first
+            for(Cell cell : lineList){
+                max = Math.max(max, (float) cell.getMaxY());
+            }
+            Line belongLine = getLineByY(key, max);
+            // Add cell to correct line
+            for(Cell cell : lineList){
+                belongLine.addCell(cell);
+            }
+        }
+
+        // Sort all list in single line
+        Collection<Line> lines = lineTable.values();
+        for(Line line : lines){
+            line.sort();
+        }
     }
 
     /**
@@ -71,10 +135,9 @@ public class TabulaTable extends Table {
      * @param cells
      */
     private void addCells(final List<Cell> cells){
-        for(int i = 0; i < cells.size(); i++){
-            Cell cell = cells.get(i);
-            if(checkContainer(cell)){
-                float y = (float)cell.getY();
+        for (Cell cell : cells) {
+            if (checkContainer(cell)) {
+                float y = (float) cell.getY();
                 /**
                  * Currently, lines are not sorted and we
                  * will sort them at the end.
@@ -85,9 +148,9 @@ public class TabulaTable extends Table {
             }
         }
 
-        /**
-         * Now we finished adding all cells in current page and
-         * we can sort the lists by their x coordinate values.
+        /*
+          Now we finished adding all cells in current page and
+          we can sort the lists by their x coordinate values.
          */
         Iterator<java.lang.Float> iterator = table.keySet().iterator();
         int count = 0;
@@ -197,6 +260,15 @@ public class TabulaTable extends Table {
             tableString.append(getLine(cells));
         }
         return tableString.toString();
+    }
+
+    public String showTableByLine(){
+        StringBuilder stringBuilder = new StringBuilder();
+        Collection<Line> lines = lineTable.values();
+        for(Line line : lines){
+            stringBuilder.append(line.toString());
+        }
+        return stringBuilder.toString();
     }
 
     private boolean checkContainer(RectangularTextContainer container){

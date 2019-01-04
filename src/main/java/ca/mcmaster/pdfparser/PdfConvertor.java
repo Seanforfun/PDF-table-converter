@@ -36,8 +36,8 @@ public class PdfConvertor {
 //                while (iterator.hasNext()){
 //                    log.info("{}", iterator.next());
 //                }
-                System.out.println(table.showTable());
 //                log.info("{}", table.getContentFromTable(6, 2));
+                System.out.println(table.showTableByLine());
             }finally {
                 pdf.getPdf().close();
             }
