@@ -113,19 +113,23 @@ public class TabulaTable extends Table {
             TextChunk chunk = textChunks.get(i);
             if(!checkContainer(chunk) || chunk.getText().length() == 0) continue;
             final Iterator<java.lang.Float> iterator = keySet.iterator();
-            double y = chunk.getY();
-            double maxY = chunk.getMaxY();
+            double y = chunk.getY();    // Start coordinate of current chunk
+            double maxY = chunk.getMaxY();  // End coordinate of current chunk
             double x = chunk.getX();
             double maxX = chunk.getMaxX();
-
+            OUT1:
             while(iterator.hasNext()){
                 final java.lang.Float k = iterator.next();
                 List<Cell> cells = table.get(k);
-                Cell cell = cells.get(FIRST_INDEX);
-                double tempY = cell.getY();
-                double tempMaxY = cell.getMaxY();
-                if(!within(y, maxY, tempY, tempMaxY)) continue;
+
+                //Check all cells in current line,
+                //make sure all y starts of text chunk is equal to
+                //the start of current line.
                 for(int j = 0; j < cells.size(); j++){
+                    Cell cell = cells.get(j);
+                    double tempY = cell.getY();
+                    double tempMaxY = cell.getMaxY();
+                    if(!within(y, maxY, tempY, tempMaxY)) continue OUT1;
                     Cell cur = cells.get(j);
                     double tempX = cur.getX();
                     double tempMaxX = cur.getMaxX();
