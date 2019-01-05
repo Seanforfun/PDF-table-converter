@@ -73,8 +73,19 @@ public class Cell extends RectangularTextContainer<TextChunk> {
         StringBuilder sb = new StringBuilder();
         int lineNum = getLineNum();
         int colNum = getColNum();
+//        sb.append(getText());
         sb.append(placeholder ? String.format(PLACEHOLDER_FORMAT, lineNum, colNum):
                 String.format(CELL_FORMAT, getText(), lineNum, colNum));
         return sb.toString();
+    }
+
+    public static String getContentFromCell(Cell cell){
+        StringBuilder res = new StringBuilder();
+        final List<TextChunk> textElements = cell.getTextElements();
+        if(textElements.size() == 0) return "";
+        for(TextChunk chunk : textElements){
+            res.append(chunk.getText());
+        }
+        return res.toString();
     }
 }

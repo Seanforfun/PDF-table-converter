@@ -5,6 +5,8 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import technology.tabula.Rectangle;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.*;
 
 @SuppressWarnings("serial")
@@ -21,15 +23,15 @@ public class Line extends Rectangle {
     @Setter @Getter
     private int lineHold;
     @Setter @Getter
-    private TreeMap<java.lang.Float, List<Cell>> lines = null;
+    private TreeMap<Integer, List<Cell>> lines = null;
     @Setter @Getter
     private double y, maxY;
     List<TextChunk> textChunks = new ArrayList<>();
 
     private static final String CELL_SPLITOR = TabulaTable.CELL_SPLITOR;
     private static final String LINE_SPILITOR = TabulaTable.LINE_SPILITOR;
-    private static final Comparator<java.lang.Float> lineComparator = (f1, f2) -> {
-        if(f1 == f2) return 0;
+    private static final Comparator<Integer> lineComparator = (f1, f2) -> {
+        if(f1.equals(f2)) return 0;
         return f1 < f2 ? -1: 1;
     };
     private static final  Comparator<Cell> cellLineComparator = (c1, c2) ->{
@@ -48,13 +50,13 @@ public class Line extends Rectangle {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        NavigableSet<java.lang.Float> keySet = lines.navigableKeySet();
-        Iterator<java.lang.Float> it = keySet.iterator();
+        NavigableSet<Integer> keySet = lines.navigableKeySet();
+        Iterator<Integer> it = keySet.iterator();
         while(it.hasNext()){
-            float key = it.next();
+            int key = it.next();
             List<Cell> singleLine = lines.get(key);
             for(Cell cell : singleLine){
-                String cellInfo = cell.toString();
+                String cellInfo = Cell.getContentFromCell(cell);
                 sb.append(cellInfo + CELL_SPLITOR);
             }
             sb.append(LINE_SPILITOR);
@@ -63,10 +65,11 @@ public class Line extends Rectangle {
     }
 
     public void addCell(Cell cell){
-        float y = (float)cell.getY();
-        List<Cell> currentLine = lines.containsKey(y) ? lines.get(y) : new ArrayList<>();
+        float y = (float) cell.getY();
+        int key = (int)y;
+        List<Cell> currentLine = lines.containsKey(key) ? lines.get(key) : new ArrayList<>();
         currentLine.add(cell);
-        lines.put(y, currentLine);
+        lines.put(key, currentLine);
     }
 
     public void sort(){

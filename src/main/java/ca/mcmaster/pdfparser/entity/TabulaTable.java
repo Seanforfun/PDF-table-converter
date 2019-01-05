@@ -106,7 +106,7 @@ public class TabulaTable extends Table {
 
         while(it.hasNext()){
             // Get the yStart of current line, we try to get the line object.
-            java.lang.Float key = it.next();
+            float key = it.next();
             List<Cell> lineList = table.get(key);
             float max = 0F;
 
@@ -221,15 +221,6 @@ public class TabulaTable extends Table {
         return table.get(key).get(col);
     }
 
-    public String getContentFromCell(Cell cell){
-        StringBuilder res = new StringBuilder();
-        final List<TextChunk> textElements = cell.getTextElements();
-        if(textElements.size() == 0) return "";
-        for(TextChunk chunk : textElements){
-            res.append(chunk.getText());
-        }
-        return res.toString();
-    }
 
     public String getContentFromTable(int row, int col){
         if(row >= rowCount || col >= colCount.get(row)){
@@ -237,13 +228,13 @@ public class TabulaTable extends Table {
                 throw new InvalidArgumentException(row + " is out of range.");
             throw new InvalidArgumentException(col + "is out of range.");
         }
-       return getContentFromCell(getCell(row, col));
+       return Cell.getContentFromCell(getCell(row, col));
     }
 
     public String getLine(List<Cell> line){
         StringBuilder res = new StringBuilder();
         for(Cell cell : line){
-            res.append(getContentFromCell(cell) + CELL_SPLITOR );
+            res.append(Cell.getContentFromCell(cell) + CELL_SPLITOR );
         }
         int len = res.length();
         final int spiltorLength = CELL_SPLITOR.length();
