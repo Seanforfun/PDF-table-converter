@@ -125,6 +125,8 @@ public class TabulaTable extends Table {
         Collection<Line> lines = lineTable.values();
         for(Line line : lines){
             line.sort();
+            line.lineFinalize();
+            line.lineAlign();
         }
     }
 

@@ -1,5 +1,6 @@
 package ca.mcmaster.pdfparser.entity;
 
+import ca.mcmaster.pdfparser.exceptions.LineFinalizedMissingException;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +27,10 @@ public class Line extends Rectangle {
     private TreeMap<Integer, List<Cell>> lines = null;
     @Setter @Getter
     private double y, maxY;
+    @Setter @Getter
+    private double x = java.lang.Double.MAX_VALUE, maxX = 0D;
     List<TextChunk> textChunks = new ArrayList<>();
+    private boolean finalized;
 
     private static final String CELL_SPLITOR = TabulaTable.CELL_SPLITOR;
     private static final String LINE_SPILITOR = TabulaTable.LINE_SPILITOR;
@@ -41,6 +45,9 @@ public class Line extends Rectangle {
         return x1 < x2 ? -1: 1;
     };
     public static final Character[] WHITE_SPACE_CHARS = { ' ', '\t', '\r', '\n', '\f' };
+    private static final Map<Integer, Integer> keyMap = new HashMap<>();
+    private static final Integer FIRST_CELL_IN_CURRENT_LINE = 0;
+    private static final Integer EMPTY_LINE = 0;
 
     public Line(){
         lines = new TreeMap<>(lineComparator);
@@ -104,5 +111,79 @@ public class Line extends Rectangle {
         }
 
         return rv;
+    }
+
+    private boolean closeTo(float pre, float next){
+        if(Math.abs(pre - next) < 4)
+            return true;
+        return false;
+    }
+
+    public void lineFinalize(){
+        finalized = true;
+        // Start creating keyMap
+        int count = 0;
+        NavigableSet<Integer> keySet = lines.navigableKeySet();
+        List<Integer> keyList = new ArrayList<>(keySet);
+        for (int i = 0; i < keyList.size(); i++){
+            final List<Cell> cells = lines.get(keyList.get(i));
+            int len = EMPTY_LINE;
+            for(Cell cell : cells){
+                len += Cell.getContentFromCell(cell).length();
+            }
+            if(len == EMPTY_LINE){
+                this.lines.remove(keyList.get(i));
+                continue;
+            }
+            keyMap.put(count++, keyList.get(i));
+        }
+        // Set x and maxX
+        final Collection<List<Cell>> values = lines.values();
+
+        for (List<Cell> cells : values){
+            this.x = Math.min(cells.get(FIRST_CELL_IN_CURRENT_LINE).getX(), this.x);
+            this.maxX = Math.max(cells.get(cells.size() - 1).getMaxX(), this.maxX);
+        }
+        this.lineHold = lines.size();
+    }
+
+    /**
+     * Try to align all cells to have all table
+     * being completed.
+     */
+    public void lineAlign(){
+        if(!finalized){
+            throw new LineFinalizedMissingException("lineFinalize method should be called before lineAlgin.");
+        }
+        if(lineHold <= 1) return;
+        for(int i = 1; i < lineHold; i++){
+            List<Cell> cells = lines.get(keyMap.get(i));
+            List<Cell> preCells = lines.get(keyMap.get(i - 1));
+            int size = cells.size();
+            if(size <= 1) continue;
+            float preMaxX = (float) this.x;
+            for(int j = 0; j < cells.size(); j++){
+                final Cell cell = cells.get(j);
+                float currentX = (float)cell.getX();
+                if(Cell.getContentFromCell(cell).contains("Out")) {
+                    System.out.println("+++++++++++++++++++++++++++++++++");
+                    System.out.println(preMaxX + " " + currentX);
+                    System.out.println("+++++++++++++++++++++++++++++++++");
+                }
+                if(!closeTo(preMaxX, currentX)){
+                    System.out.println("==================================================");
+                    System.out.println(Cell.getContentFromCell(cell));
+                    System.out.println("==================================================");
+                    for (int z = 0; i < preCells.size(); i++){
+                        if(closeTo((float)cell.getX(), (float)preCells.get(z).getMaxX())){
+                            System.out.println("==================================================");
+                            System.out.println(Cell.getContentFromCell(preCells.get(z)));
+                            System.out.println("==================================================");
+                        }
+                    }
+                }
+                preMaxX = (float)cell.getMaxX();
+            }
+        }
     }
 }
