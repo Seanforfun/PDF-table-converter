@@ -28,14 +28,14 @@ public class CellDecoder implements Decoder{
 
     private static final String CELL_PREFIX = "[CELL]";
     private static final char[] KEY_VALUE_SPLITOR = {':', '?'};
-    private static final char BRACKET_START = '(';
-    private static final char BRACKET_END = ')';
-    private static final int TOKEN_MISSING = -1;
     private static final String DIGIT_REGEX = "[0-9]*";
     private static final String OFFSET = "OFFSET";
 
-    private CellDecoder(String command){
+    public CellDecoder(String command){
         this.command = command;
+        if(!compile(command)){
+            throw new CommandException(command + " is Invalid");
+        }
     }
 
     private boolean isValidParam(String token){
@@ -48,21 +48,12 @@ public class CellDecoder implements Decoder{
         int startIndex;
         if((startIndex = command.indexOf(BRACKET_START)) != TOKEN_MISSING){
             this.hasParam = true;
-            String param = command.substring(startIndex, command.indexOf(BRACKET_END));
+            String param = command.substring(startIndex + 1, command.indexOf(BRACKET_END));
             if(!isValidParam(DIGIT_REGEX)) return false;
             this.offset = Integer.parseInt(param);
             this.param.put(OFFSET, offset);
         }
         return true;
-    }
-
-    @Override
-    public Decoder getDecoder(String command) {
-        Decoder cellDecoder = new CellDecoder(command);
-        if(!cellDecoder.compile(command)){
-            throw new CommandException(command + " is Invalid");
-        }
-        return cellDecoder;
     }
 
     @Override

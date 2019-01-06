@@ -15,17 +15,17 @@ import java.util.Map;
  * @version: 0.0.1
  */
 public interface Decoder {
+
+    static final char ANGLE_BRACKET_START = '<';
+    static final char ANGLE_BRACKET_END = '>';
+    static final char BRACKET_START = '(';
+    static final char BRACKET_END = ')';
+    static final int TOKEN_MISSING = -1;
     /**
      * @param command The command line for check
      * @return If current command is valid.
      */
     public boolean compile(String command);
-
-    /**
-     * @param command get a decoder which can decode current format
-     * @return The decoder instance
-     */
-    public Decoder getDecoder(String command);
 
     /**
      * @param row The starting row of the begining row number.

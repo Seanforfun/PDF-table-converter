@@ -1,8 +1,11 @@
 package ca.mcmaster.pdfparser.entity.vo;
 
 import ca.mcmaster.pdfparser.exceptions.CommandException;
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.Map;
 
 /**
  * @author: Seanforfun
@@ -18,6 +21,10 @@ public class CellItem implements ParsedItem {
     private String key;
     @Getter @Setter
     private String value;
+
+    private static final String HAS_KEY = "has_key";
+    private static final String KEY = "key";
+    private static final String VALUE = "value";
 
     public void setCellItemKV(String key, String value){
         if(hasKey) {
@@ -40,5 +47,14 @@ public class CellItem implements ParsedItem {
         }else{
             item.setValue(content);
         }
+    }
+
+    @Override
+    public JsonObject getJsonObject() {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty(HAS_KEY, this.hasKey);
+        jsonObject.addProperty(KEY, this.key);
+        jsonObject.addProperty(VALUE, this.value);
+        return jsonObject;
     }
 }

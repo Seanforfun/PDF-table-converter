@@ -1,5 +1,6 @@
 package ca.mcmaster.pdfparser.entity.vo;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -12,4 +13,5 @@ import lombok.extern.slf4j.Slf4j;
  * @version: 0.0.1
  */
 public interface ParsedItem {
+    public JsonObject getJsonObject();
 }
