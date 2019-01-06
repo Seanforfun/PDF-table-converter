@@ -73,7 +73,6 @@ public class Cell extends RectangularTextContainer<TextChunk> {
         StringBuilder sb = new StringBuilder();
         int lineNum = getLineNum();
         int colNum = getColNum();
-//        sb.append(getText());
         sb.append(placeholder ? String.format(PLACEHOLDER_FORMAT, lineNum, colNum):
                 String.format(CELL_FORMAT, getText(), lineNum, colNum));
         return sb.toString();
