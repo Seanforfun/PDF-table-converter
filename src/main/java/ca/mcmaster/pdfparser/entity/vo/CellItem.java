@@ -1,6 +1,7 @@
 package ca.mcmaster.pdfparser.entity.vo;
 
 import ca.mcmaster.pdfparser.exceptions.CommandException;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
@@ -50,7 +51,7 @@ public class CellItem implements ParsedItem {
     }
 
     @Override
-    public JsonObject getJsonObject() {
+    public JsonElement getJsonObject() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty(HAS_KEY, this.hasKey);
         jsonObject.addProperty(KEY, this.key);

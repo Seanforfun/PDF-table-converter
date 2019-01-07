@@ -214,6 +214,8 @@ public class TabulaTable extends Table {
             if(checkContainer(cell)){
                 List<TextChunk> textElements = cell.getTextElements();
                 textElements.sort(chunkComparator);
+                String content = Cell.getContentFromCell(cell);
+                cell.setContent(content);
             }
         }
     }
@@ -245,6 +247,10 @@ public class TabulaTable extends Table {
         return res.toString();
     }
 
+    public List<Cell> getLineFromTable(int rowNum){
+        return this.table.get(keyMap.get(rowNum));
+    }
+
     public String showTable(){
         StringBuilder tableString = new StringBuilder();
         //Get all rows first
@@ -262,6 +268,10 @@ public class TabulaTable extends Table {
             stringBuilder.append(line.toString());
         }
         return stringBuilder.toString();
+    }
+
+    public int getColInRow(int row){
+        return this.table.get(keyMap.get(row)).size();
     }
 
     private boolean checkContainer(RectangularTextContainer container){

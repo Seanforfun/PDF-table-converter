@@ -18,6 +18,8 @@ public class Cell extends RectangularTextContainer<TextChunk> {
     private boolean placeholder = false;
     private List<TextChunk> textElements;
     @Getter @Setter
+    private String content;
+    @Getter @Setter
 	private int holdX = 1, holdY = 1;
     @Getter @Setter
     private int lineNum, colNum;
@@ -86,5 +88,9 @@ public class Cell extends RectangularTextContainer<TextChunk> {
             res.append(chunk.getText());
         }
         return res.toString();
+    }
+
+    public boolean hasValue(String content){
+        return this.content.trim().equals(content);
     }
 }

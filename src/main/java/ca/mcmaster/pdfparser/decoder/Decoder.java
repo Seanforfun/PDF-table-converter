@@ -32,5 +32,5 @@ public interface Decoder {
      * @param col The starting col of the begining column number.
      * @return
      */
-    public ParsedItem decode(TabulaTable table, int row, int col);
+    public ParsedItem decode(TabulaTable table, int row, int col) throws Exception;
 }

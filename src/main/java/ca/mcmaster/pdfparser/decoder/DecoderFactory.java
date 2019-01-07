@@ -11,4 +11,8 @@ public class DecoderFactory {
     public static CellDecoder createCellDecoder(String command){
         return new CellDecoder(command);
     }
+
+    public static ListDecoder createListDecoder(String command){
+        return new ListDecoder(command);
+    }
 }

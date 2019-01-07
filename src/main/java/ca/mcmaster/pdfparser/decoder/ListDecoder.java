@@ -1,13 +1,14 @@
 package ca.mcmaster.pdfparser.decoder;
 
+import ca.mcmaster.pdfparser.entity.Cell;
 import ca.mcmaster.pdfparser.entity.TabulaTable;
+import ca.mcmaster.pdfparser.entity.vo.ListItem;
 import ca.mcmaster.pdfparser.entity.vo.ParsedItem;
 import ca.mcmaster.pdfparser.exceptions.CommandException;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * @author: Seanforfun
@@ -21,11 +22,20 @@ public class ListDecoder implements Decoder {
     private String command;
     private List<String> columns;
     private boolean horizontal;
+    private int lineNum;
 
     private static final String LIST_PREFIX = "[LIST]";
-    private static final char LIST_SPLITOR = '|';
+    private static final String LIST_SPLITOR = "|";
     private static final String HORIZONTAL = "HORIZONTAL";
-    private static final String VERTIVAL = "VERTIVAL";
+    private static final String VERTICAL = "VERTICAL";
+    private static final String OPTION_SPLITOR = ",";
+    private static final int LINE_NUMBER_OPTION_INDEX = 1;
+
+    public ListDecoder(String command){
+        this.command = command;
+        if(!compile(command))
+            throw new CommandException(command + " has syntax error.");
+    }
 
     @Override
     public boolean compile(String command) {
@@ -44,14 +54,49 @@ public class ListDecoder implements Decoder {
             throw new CommandException(command + " is invalid");
         }
         String columns = command.substring(angleBracketStart + 1, angleBracketEnd);
-        this.columns = Arrays.asList(columns.split(LIST_PREFIX));
+        this.columns = Arrays.asList(columns.split(LIST_SPLITOR));
         if(this.columns.size() == 0) throw new CommandException(command + " is invalid");
-        String options = command.substring(bracketStart + 1, bracketEnd);
+        String option = command.substring(bracketStart + 1, bracketEnd);
+        if(!option.toUpperCase().startsWith(HORIZONTAL) && !option.toUpperCase().startsWith(VERTICAL))
+            throw new CommandException("HORIZONTAL or VERTICAL must be provided in bracket");
+        this.horizontal = option.toUpperCase().startsWith(HORIZONTAL);
+        this.lineNum = Integer.parseInt(option.split(OPTION_SPLITOR)[LINE_NUMBER_OPTION_INDEX]);
         return false;
     }
 
     @Override
-    public ParsedItem decode(TabulaTable table, int row, int col) {
-        return null;
+    public ParsedItem decode(TabulaTable table, int row, int col) throws Exception {
+        ListItem item = new ListItem(this.columns);
+        List<Map<String, String>> instances = null;
+        int index = 0;
+        if(horizontal){
+            List<Integer> indexes = new ArrayList<>();
+            List<Cell> line = table.getLineFromTable(row);
+            for(int i = 0; i < table.getColInRow(row); i++){
+                Cell cell = line.get(i);
+                if(cell.hasValue(columns.get(index))){
+                    indexes.add(i);
+                    index++;
+                }
+            }
+            for(int i = 1; i < lineNum; i++){
+                Map<String, String> instance = new HashMap<>();
+                List<Cell> lineFromTable = table.getLineFromTable(row + i);
+                for(int j = 0; j < indexes.size(); j++){
+                    instance.put(columns.get(i), lineFromTable.get(indexes.get(j)).getContent());
+                }
+                instances.add(instance);
+            }
+        }else{
+            for(int i = 1; i < lineNum; i++){
+                Map<String, String> instance = new HashMap<>();
+                for (int j = 0; j < columns.size(); i++){
+                    instance.put(columns.get(j), table.getCell(row + i, j).getContent());
+                }
+                instances.add(instance);
+            }
+        }
+        item.setInstances(instances);
+        return item;
     }
 }
